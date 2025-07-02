@@ -1,0 +1,341 @@
+<!-- Template Analítico - HG Soluções Pro 2.0 -->
+<div class="container-fluid py-3" ng-init="vm.carregarDados()">
+  <!-- Header com filtros avançados -->
+  <div class="row align-items-center mb-4">
+    <div class="col-md-5">
+      <h1 class="h2 text-primary"><i class="fas fa-chart-bar"></i> Dashboard Analítico</h1>
+      <p class="text-muted">Análise detalhada de dados financeiros</p>
+    </div>
+    <div class="col-md-7">
+      <div class="card bg-light">
+        <div class="card-body py-2">
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group mb-0">
+                <label class="small">Período:</label>
+                <select id="anoSelecionadoAnalitico" class="form-control form-control-sm" ng-model="vm.anoSelecionado" ng-options="ano for ano in vm.anos" ng-change="vm.carregarDados()">
+                </select>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group mb-0">
+                <label class="small">Categoria:</label>
+                <select class="form-control form-control-sm" ng-model="vm.filtroCategoria" ng-change="vm.carregarDados()">
+                  <option value="">Todas</option>
+                  <option ng-repeat="item in vm.graficos.despesas.labels" value="{{item}}">{{item}}</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group mb-0">
+                <label class="small">Tipo:</label>
+                <select class="form-control form-control-sm" ng-model="vm.filtroTipo" ng-change="vm.carregarDados()">
+                  <option value="">Todos</option>
+                  <option value="receita">Receitas</option>
+                  <option value="despesa">Despesas</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-2 align-self-end">
+              <div class="d-flex">
+                <button class="btn btn-primary btn-sm" ng-click="vm.carregarDados(true)" style="flex: 1;"><i class="fas fa-filter"></i> Filtrar</button>
+                <button class="btn btn-outline-secondary btn-sm ml-2" ng-click="vm.alternarTema()" title="Alternar Tema">
+                  <i class="fas" ng-class="{'fa-moon': !vm.temaEscuro, 'fa-sun': vm.temaEscuro}"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Indicadores principais -->
+  <div class="row mb-4">
+    <div class="col-md-2">
+      <div class="card border-left-success h-100">
+        <div class="card-body py-2">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Receitas Totais</div>
+              <div class="h5 mb-0 font-weight-bold">R$ {{vm.totais.receitas | number:2}}</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-calendar fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-2">
+      <div class="card border-left-danger h-100">
+        <div class="card-body py-2">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Despesas Totais</div>
+              <div class="h5 mb-0 font-weight-bold">R$ {{vm.totais.despesas | number:2}}</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-2">
+      <div class="card" ng-class="{'border-left-success': vm.totais.saldo >= 0, 'border-left-danger': vm.totais.saldo < 0}">
+        <div class="card-body py-2">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-uppercase mb-1" ng-class="{'text-success': vm.totais.saldo >= 0, 'text-danger': vm.totais.saldo < 0}">Saldo Total</div>
+              <div class="h5 mb-0 font-weight-bold">R$ {{vm.totais.saldo | number:2}}</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-balance-scale fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-2">
+      <div class="card border-left-info h-100">
+        <div class="card-body py-2">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Taxa de Economia</div>
+              <div class="h5 mb-0 font-weight-bold">{{(vm.totais.saldo / vm.totais.receitas) * 100 | number:1}}%</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-percentage fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-2">
+      <div class="card border-left-warning h-100">
+        <div class="card-body py-2">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Parcelas Abertas</div>
+              <div class="h5 mb-0 font-weight-bold">{{vm.parcelasAbertas}}</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-2">
+      <div class="card border-left-primary h-100">
+        <div class="card-body py-2">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Mov. no Período</div>
+              <div class="h5 mb-0 font-weight-bold">{{vm.movPeriodo}}</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-exchange-alt fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráficos analíticos -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <ul class="nav nav-tabs card-header-tabs">
+            <li class="nav-item">
+              <a class="nav-link" ng-class="{'active': vm.tipoAnalise === 'mensal'}" href="javascript:void(0)" ng-click="vm.mudarTipoAnalise('mensal')">Análise Mensal</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" ng-class="{'active': vm.tipoAnalise === 'trimestral'}" href="javascript:void(0)" ng-click="vm.mudarTipoAnalise('trimestral')">Análise Trimestral</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" ng-class="{'active': vm.tipoAnalise === 'anual'}" href="javascript:void(0)" ng-click="vm.mudarTipoAnalise('anual')">Análise Anual</a>
+            </li>
+          </ul>
+        </div>
+        <div class="card-body">
+          <canvas id="barChart" class="chart chart-bar" chart-data="vm.graficos.ondas.data"
+              chart-labels="vm.graficos.ondas.labels" chart-series="vm.graficos.ondas.series"
+              chart-options="vm.graficos.ondas.options" chart-colors="vm.graficos.ondas.colors">
+          </canvas>
+        </div>
+      </div>
+      
+      <div class="card shadow-sm">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Tendências Comparativas</h5>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-secondary" ng-class="{'active': vm.graficos.tendencias.mostrarReceitas}" ng-click="vm.toggleTendencia('receitas')">Receitas</button>
+            <button class="btn btn-outline-secondary" ng-class="{'active': vm.graficos.tendencias.mostrarDespesas}" ng-click="vm.toggleTendencia('despesas')">Despesas</button>
+            <button class="btn btn-outline-secondary" ng-class="{'active': vm.graficos.tendencias.mostrarSaldo}" ng-click="vm.toggleTendencia('saldo')">Saldo</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <canvas id="lineChart" class="chart chart-line" chart-data="vm.graficos.ondas.data"
+              chart-labels="vm.graficos.ondas.labels" chart-series="vm.graficos.ondas.series"
+              chart-options="vm.graficos.ondas.options" chart-colors="vm.graficos.ondas.colors" height="250">
+          </canvas>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Análise de Categorias</h5>
+        </div>
+        <div class="card-body">
+          <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <a class="nav-link active" id="pills-despesas-tab" data-toggle="pill" href="#pills-despesas" role="tab">Despesas</a>
+            </li>
+            <li class="nav-item" role="presentation">
+              <a class="nav-link" id="pills-receitas-tab" data-toggle="pill" href="#pills-receitas" role="tab">Receitas</a>
+            </li>
+          </ul>
+          <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="pills-despesas" role="tabpanel">
+              <canvas class="chart chart-pie" chart-data="vm.graficos.pizza.data"
+              chart-labels="vm.graficos.pizza.labels"
+              chart-options="vm.graficos.pizza.options"
+              chart-colors="vm.graficos.pizza.colors"
+              chart-click="vm.onChartClick">
+              </canvas>
+            </div>
+            <div class="tab-pane fade" id="pills-receitas" role="tabpanel">
+              <canvas id="pieChart2" class="chart chart-pie" chart-data="vm.graficos.receitas.data"
+                  chart-labels="vm.graficos.receitas.labels" chart-options="vm.graficos.receitas.options"
+                  chart-colors="vm.graficos.receitas.colors"
+                  chart-click="vm.onChartClick">
+              </canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Métricas de Categorias</h5>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-sm table-hover mb-0">
+            <thead>
+              <tr>
+                <th>Categoria</th>
+                <th>Valor</th>
+                <th>% do Total</th>
+                <th>Var.</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="(index, label) in vm.graficos.despesas.labels track by $index" ng-if="vm.graficos.despesas.labels.length > 0 && vm.graficos.despesas.labels[0] !== 'Sem despesas'">
+                <td>{{label}}</td>
+                <td>R$ {{vm.graficos.despesas.data[$index] | number:2}}</td>
+                <td>
+                  <div class="progress" style="height: 5px;">
+                    <div class="progress-bar bg-danger" ng-style="{width: ((vm.graficos.despesas.data[$index] / vm.totais.despesas) * 100) + '%'}"></div>
+                  </div>
+                  <span class="small">{{vm.totais.despesas > 0 ? ((vm.graficos.despesas.data[$index] / vm.totais.despesas) * 100 | number:1) : 0}}%</span>
+                </td>
+                <td>
+                  <a href="javascript:void(0)" ng-click="vm.verDetalhesCategoria(label)" class="badge badge-light">Ver</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Tabela detalhada -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Transações Detalhadas</h5>
+          <div class="form-inline">
+            <input type="text" class="form-control form-control-sm mr-2" placeholder="Buscar..." ng-model="vm.filtroMovimentacoes">
+            <select class="form-control form-control-sm" ng-model="vm.itensPorPagina" ng-change="vm.mudarItensPorPagina()" ng-options="opt as (opt + ' por página') for opt in [10, 25, 50]">
+            </select>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-hover table-sm mb-0">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th>Categoria</th>
+                <th>Tipo</th>
+                <th>Parcela</th>
+                <th class="text-right">Valor (R$)</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-if="!vm.ultimas || vm.ultimas.length === 0">
+                <td colspan="7" class="text-center">Nenhuma movimentação encontrada</td>
+              </tr>
+              <tr ng-repeat="mov in vm.ultimasFiltradas | limitTo:vm.itensPorPagina" 
+                  ng-class="{'table-success': mov.tipo === 'receita', 'table-danger': mov.tipo === 'despesa'}" ng-if="vm.ultimas && vm.ultimas.length > 0">
+                <td>{{mov.data | date:'dd/MM/yyyy'}}</td>
+                <td>{{mov.descricao}}</td>
+                <td>{{mov.categoriaDisplay || 'Sem categoria'}}</td>
+                <td>
+                  <span class="badge" ng-class="{'badge-success': mov.tipo === 'receita', 'badge-danger': mov.tipo === 'despesa'}">
+                    {{mov.tipo === 'receita' ? 'Receita' : 'Despesa'}}
+                  </span>
+                </td>
+                <td>
+                  <span ng-if="mov.parcelas_total > 1">{{mov.parcela_atual}}/{{mov.parcelas_total}}</span>
+                  <span ng-if="mov.parcelas_total <= 1">-</span>
+                </td>
+                <td class="text-right font-weight-bold">{{mov.valor | number:2}}</td>
+                <td>
+                  <button class="btn btn-sm btn-link py-0" ng-click="vm.verDetalhes(mov)"><i class="fas fa-eye"></i></button>
+                  <button class="btn btn-sm btn-link py-0" ng-click="vm.editarMovimentacao(mov)"><i class="fas fa-edit"></i></button>
+                  <button class="btn btn-sm btn-link py-0 text-danger" ng-click="vm.confirmarExclusao(mov)"><i class="fas fa-trash"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card-footer">
+          <nav>
+            <ul class="pagination pagination-sm justify-content-center mb-0">
+              <li class="page-item" ng-class="{'disabled': vm.paginaAtual === 1}">
+                <a class="page-link" href="javascript:void(0)" ng-click="vm.mudarPagina(vm.paginaAtual - 1)">Anterior</a>
+              </li>
+              <li class="page-item" ng-class="{'active': vm.paginaAtual === 1}">
+                <a class="page-link" href="javascript:void(0)" ng-click="vm.mudarPagina(1)">1</a>
+              </li>
+              <li class="page-item" ng-class="{'active': vm.paginaAtual === 2}">
+                <a class="page-link" href="javascript:void(0)" ng-click="vm.mudarPagina(2)">2</a>
+              </li>
+              <li class="page-item" ng-class="{'active': vm.paginaAtual === 3}">
+                <a class="page-link" href="javascript:void(0)" ng-click="vm.mudarPagina(3)">3</a>
+              </li>
+              <li class="page-item" ng-class="{'disabled': vm.paginaAtual === 3 || vm.ultimas.length <= vm.itensPorPagina}">
+                <a class="page-link" href="javascript:void(0)" ng-click="vm.mudarPagina(vm.paginaAtual + 1)">Próximo</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

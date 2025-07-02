@@ -1,0 +1,111 @@
+<!-- Template da página de registro -->
+<div class="container register-container">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-primary text-white text-center">
+          <h4><i class="fas fa-user-plus mr-2"></i> Criar Conta</h4>
+          <p class="mb-0">Preencha os dados para se cadastrar</p>
+        </div>
+        
+        <div class="card-body">
+          <!-- Exibir mensagem de erro se houver -->
+          <div class="alert alert-danger" ng-if="vm.erro">
+            <i class="fas fa-exclamation-circle mr-1"></i> {{vm.erro}}
+          </div>
+          
+          <!-- Formulário de registro -->
+          <form ng-submit="vm.registrar()" name="formRegistro">
+            <div class="form-group">
+              <label for="nome"><i class="fas fa-user mr-1"></i> Nome completo</label>
+              <input type="text" id="nome" name="nome" class="form-control" 
+                     ng-model="vm.usuario.nome" required minlength="5"
+                     placeholder="Seu nome completo">
+              <small class="text-danger" ng-if="formRegistro.nome.$dirty && formRegistro.nome.$error.required">
+                Nome é obrigatório
+              </small>
+              <small class="text-danger" ng-if="formRegistro.nome.$dirty && formRegistro.nome.$error.minlength">
+                Nome deve ter pelo menos 5 caracteres
+              </small>
+            </div>
+            
+            <div class="form-group">
+              <label for="dataNascimento"><i class="fas fa-calendar-alt mr-1"></i> Data de nascimento</label>
+              <input type="date" id="dataNascimento" name="dataNascimento" class="form-control" 
+                     ng-model="vm.usuario.data_nascimento" required>
+              <small class="text-danger" ng-if="formRegistro.dataNascimento.$dirty && formRegistro.dataNascimento.$error.required">
+                Data de nascimento é obrigatória
+              </small>
+            </div>
+            
+            <div class="form-group">
+              <label for="login"><i class="fas fa-at mr-1"></i> Login</label>
+              <div class="input-group">
+                <input type="text" id="login" name="login" class="form-control" 
+                       ng-model="vm.usuario.login" required minlength="5"
+                       placeholder="Escolha um login" ng-change="vm.verificarLogin()" autocomplete="username">
+                <div class="input-group-append" ng-if="vm.loginDisponivel !== null">
+                  <span class="input-group-text" ng-class="{'bg-success text-white': vm.loginDisponivel, 'bg-danger text-white': !vm.loginDisponivel}">
+                    <i class="fas" ng-class="{'fa-check': vm.loginDisponivel, 'fa-times': !vm.loginDisponivel}"></i>
+                  </span>
+                </div>
+              </div>
+              <small class="text-danger" ng-if="formRegistro.login.$dirty && formRegistro.login.$error.required">
+                Login é obrigatório
+              </small>
+              <small class="text-danger" ng-if="formRegistro.login.$dirty && formRegistro.login.$error.minlength">
+                Login deve ter pelo menos 5 caracteres
+              </small>
+              <small class="text-danger" ng-if="vm.loginDisponivel === false">
+                Este login já está em uso
+              </small>
+              <small class="text-success" ng-if="vm.loginDisponivel === true">
+                Login disponível
+              </small>
+            </div>
+            
+            <div class="form-group">
+              <label for="senha"><i class="fas fa-lock mr-1"></i> Senha</label>
+              <input type="password" id="senha" name="senha" class="form-control" 
+                     ng-model="vm.usuario.senha" required minlength="6"
+                     placeholder="Escolha uma senha" autocomplete="new-password">
+              <small class="text-danger" ng-if="formRegistro.senha.$dirty && formRegistro.senha.$error.required">
+                Senha é obrigatória
+              </small>
+              <small class="text-danger" ng-if="formRegistro.senha.$dirty && formRegistro.senha.$error.minlength">
+                Senha deve ter pelo menos 6 caracteres
+              </small>
+            </div>
+            
+            <div class="form-group">
+              <label for="confirmacaoSenha"><i class="fas fa-lock mr-1"></i> Confirmar senha</label>
+              <input type="password" id="confirmacaoSenha" name="confirmacaoSenha" class="form-control" 
+                     ng-model="vm.confirmacaoSenha" required
+                     placeholder="Confirme sua senha" autocomplete="new-password">
+              <small class="text-danger" ng-if="vm.confirmacaoSenha && vm.usuario.senha !== vm.confirmacaoSenha">
+                As senhas não conferem
+              </small>
+            </div>
+            
+            <div class="form-group text-center">
+              <button type="submit" class="btn btn-success btn-block" 
+                      ng-disabled="formRegistro.$invalid || (vm.loginDisponivel === false) || (vm.usuario.senha !== vm.confirmacaoSenha)">
+                <i class="fas fa-user-plus mr-1"></i> Criar conta
+              </button>
+            </div>
+          </form>
+          
+          <hr>
+          
+          <!-- Link para voltar ao login -->
+          <div class="text-center">
+            <p>Já tem uma conta?</p>
+            <button class="btn btn-outline-primary" ng-click="vm.irParaLogin()">
+              <i class="fas fa-sign-in-alt mr-1"></i> Fazer login
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

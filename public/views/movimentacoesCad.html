@@ -1,0 +1,166 @@
+<!-- Template de Cadastro/Edição de Movimentações -->
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <h2>
+        <i class="fas" ng-class="{'fa-plus-circle': !vm.id || vm.id === 'nova', 'fa-edit': vm.id && vm.id !== 'nova'}"></i>
+        {{vm.id && vm.id !== 'nova' ? 'Editar' : 'Nova'}} Movimentação
+      </h2>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-body">
+          <form name="formMovimentacao" ng-submit="vm.salvar()">
+            <!-- Tipo de Movimentação -->
+            <div class="form-group">
+              <label>Tipo de Movimentação</label>
+              <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
+                <label class="btn btn-outline-success" ng-class="{'active': vm.movimentacao.tipo === 'receita'}">
+                  <input type="radio" name="tipo" value="receita" ng-model="vm.movimentacao.tipo"> 
+                  <i class="fas fa-plus-circle mr-1"></i> Receita
+                </label>
+                <label class="btn btn-outline-danger" ng-class="{'active': vm.movimentacao.tipo === 'despesa'}">
+                  <input type="radio" name="tipo" value="despesa" ng-model="vm.movimentacao.tipo"> 
+                  <i class="fas fa-minus-circle mr-1"></i> Despesa
+                </label>
+              </div>
+            </div>
+            
+            <div class="row">
+              <!-- Descrição -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="descricao">Descrição</label>
+                  <input type="text" id="descricao" name="descricao" class="form-control" 
+                         ng-model="vm.movimentacao.descricao" required>
+                  <small class="text-danger" ng-if="formMovimentacao.descricao.$dirty && formMovimentacao.descricao.$error.required">
+                    Descrição é obrigatória
+                  </small>
+                </div>
+              </div>
+              
+              <!-- Valor -->
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="valor">Valor</label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">R$</span>
+                    </div>
+                    <input type="number" id="valor" name="valor" class="form-control" 
+                           ng-model="vm.movimentacao.valor" required min="0.01" step="0.01">
+                  </div>
+                  <small class="text-danger" ng-if="formMovimentacao.valor.$dirty && formMovimentacao.valor.$error.required">
+                    Valor é obrigatório
+                  </small>
+                  <small class="text-danger" ng-if="formMovimentacao.valor.$dirty && formMovimentacao.valor.$error.min">
+                    Valor deve ser maior que zero
+                  </small>
+                </div>
+              </div>
+              
+              <!-- Data -->
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="data">Data</label>
+                  <input type="date" id="data" name="data" class="form-control" 
+                         ng-model="vm.movimentacao.data" required>
+                  <small class="text-danger" ng-if="formMovimentacao.data.$dirty && formMovimentacao.data.$error.required">
+                    Data é obrigatória
+                  </small>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Segunda linha com data de vencimento e status de pagamento -->
+            <div class="row" ng-if="vm.movimentacao.tipo === 'despesa'">
+              <!-- Data de Vencimento -->
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="dataVencimento">Data de Vencimento</label>
+                  <input type="date" id="dataVencimento" name="dataVencimento" class="form-control" 
+                         ng-model="vm.movimentacao.data_vencimento">
+                  <small class="form-text text-muted">Opcional. Se não preenchida, será considerada a data da despesa.</small>
+                </div>
+              </div>
+              
+              <!-- Status do Pagamento -->
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="statusPagamento">Status do Pagamento</label>
+                  <select id="statusPagamento" name="statusPagamento" class="form-control"
+                          ng-model="vm.movimentacao.status_pagamento">
+                    <option ng-repeat="status in vm.statusPagamento" value="{{status.valor}}">{{status.nome}}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <!-- Categoria -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="categoria">Categoria</label>
+                  <select id="categoria" name="categoria" class="form-control" 
+                          ng-model="vm.movimentacao.categoria_id" required>
+                    <option value="">Selecione uma categoria</option>
+                    <option ng-repeat="cat in vm.categorias" value="{{cat.id}}">{{cat.descricao}}</option>
+                  </select>
+                  <small class="text-danger" ng-if="formMovimentacao.categoria.$dirty && formMovimentacao.categoria.$error.required">
+                    Categoria é obrigatória
+                  </small>
+                </div>
+              </div>
+              
+              <!-- Tipo de frequência -->
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="tipoFrequencia">Frequência</label>
+                  <select id="tipoFrequencia" name="tipoFrequencia" class="form-control" 
+                          ng-model="vm.movimentacao.tipo_frequencia" required>
+                    <option ng-repeat="freq in vm.tiposFrequencia" value="{{freq.valor}}">{{freq.nome}}</option>
+                  </select>
+                </div>
+              </div>
+              
+              <!-- Quantidade de parcelas (apenas quando parcelado) -->
+              <div class="col-md-3" ng-if="vm.movimentacao.tipo_frequencia === 'parcelada'">
+                <div class="form-group">
+                  <label for="parcelas_total">Número de Parcelas</label>
+                  <input type="number" id="parcelas_total" name="parcelas_total" class="form-control" 
+                         ng-model="vm.movimentacao.parcelas_total" min="2" required>
+                  <small class="text-danger" ng-if="formMovimentacao.parcelas_total.$dirty && formMovimentacao.parcelas_total.$error.required && vm.movimentacao.tipo_frequencia === 'parcelada'">
+                    Número de parcelas é obrigatório
+                  </small>
+                  <small class="text-danger" ng-if="formMovimentacao.parcelas_total.$dirty && formMovimentacao.parcelas_total.$error.min">
+                    Mínimo de 2 parcelas
+                  </small>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Observação -->
+            <div class="form-group">
+              <label for="observacao">Observação (opcional)</label>
+              <textarea id="observacao" name="observacao" class="form-control" rows="3"
+                        ng-model="vm.movimentacao.observacao"></textarea>
+            </div>
+            
+            <!-- Botões -->
+            <div class="form-group text-right mb-0">
+              <button type="button" class="btn btn-secondary mr-2" ng-click="vm.cancelar()">
+                <i class="fas fa-times mr-1"></i> Cancelar
+              </button>
+              <button type="submit" class="btn btn-primary" ng-disabled="formMovimentacao.$invalid">
+                <i class="fas fa-save mr-1"></i> Salvar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

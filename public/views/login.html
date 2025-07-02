@@ -1,0 +1,66 @@
+<!-- Template da página de login -->
+<div class="container login-container">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-primary text-white text-center">
+          <h4><i class="fas fa-wallet mr-2"></i> HG Soluções Pro 2.0</h4>
+          <p class="mb-0">Faça login para acessar o sistema</p>
+        </div>
+        
+        <div class="card-body">
+          <!-- Exibir mensagem de erro se houver -->
+          <div class="alert alert-danger" ng-if="vm.erro">
+            <i class="fas fa-exclamation-circle mr-1"></i> {{vm.erro}}
+          </div>
+          
+          <!-- Formulário de login -->
+          <form ng-submit="vm.login()" name="formLogin">
+            <div class="form-group">
+              <label for="login"><i class="fas fa-user mr-1"></i> Usuário</label>
+              <input type="text" id="login" name="login" class="form-control" 
+                     ng-model="vm.credenciais.login" required minlength="5"
+                     placeholder="Seu nome de usuário" autocomplete="username">
+              <small class="text-danger" ng-if="formLogin.login.$dirty && formLogin.login.$error.required">
+                Login é obrigatório
+              </small>
+              <small class="text-danger" ng-if="formLogin.login.$dirty && formLogin.login.$error.minlength">
+                Login deve ter pelo menos 5 caracteres
+              </small>
+            </div>
+            
+            <div class="form-group">
+              <label for="senha"><i class="fas fa-lock mr-1"></i> Senha</label>
+              <input type="password" id="senha" name="senha" class="form-control" 
+                     ng-model="vm.credenciais.senha" required minlength="6"
+                     placeholder="Sua senha" autocomplete="current-password">
+              <small class="text-danger" ng-if="formLogin.senha.$dirty && formLogin.senha.$error.required">
+                Senha é obrigatória
+              </small>
+              <small class="text-danger" ng-if="formLogin.senha.$dirty && formLogin.senha.$error.minlength">
+                Senha deve ter pelo menos 6 caracteres
+              </small>
+            </div>
+            
+            <div class="form-group text-center">
+              <button type="submit" class="btn btn-primary btn-block" 
+                      ng-disabled="formLogin.$invalid">
+                <i class="fas fa-sign-in-alt mr-1"></i> Entrar
+              </button>
+            </div>
+          </form>
+          
+          <hr>
+          
+          <!-- Link para criar conta -->
+          <div class="text-center">
+            <p>Não tem uma conta?</p>
+            <button class="btn btn-outline-primary" ng-click="vm.irParaRegistro()">
+              <i class="fas fa-user-plus mr-1"></i> Criar uma conta
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
