@@ -1,15 +1,16 @@
-module.exports = (app) => {
+module.exports = app => {
   const catController = app.controllers.categoriaController;
-  const router = require('express').Router();
   
-  // Todas estas rotas precisam estar autenticadas
-  // O middleware de autenticação já é aplicado em app.use('/api', authController.verificarToken)
+  // Rota para listar e adicionar categorias
+  app.route('/api/categorias')
+    .all(app.controllers.authController.verificarToken)
+    .get(catController.listar)
+    .post(catController.adicionar);
   
-  router.get('/categorias', catController.listar);
-  router.get('/categorias/:id', catController.buscarPorId);
-  router.post('/categorias', catController.adicionar);
-  router.put('/categorias/:id', catController.atualizar);
-  router.delete('/categorias/:id', catController.remover);
-  
-  return router;
+  // Rota para operações com ID específico
+  app.route('/api/categorias/:id')
+    .all(app.controllers.authController.verificarToken)
+    .get(catController.buscarPorId)
+    .put(catController.atualizar)
+    .delete(catController.remover);
 };

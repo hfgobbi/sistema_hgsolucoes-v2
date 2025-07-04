@@ -4,8 +4,9 @@
 [![Express](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)](https://expressjs.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![AngularJS](https://img.shields.io/badge/AngularJS-E23237?style=for-the-badge&logo=angularjs&logoColor=white)](https://angularjs.org/)
+[![Versão](https://img.shields.io/badge/Versão-2.3.0-blue?style=for-the-badge)](https://github.com/hfgobbi/sistema_hgsolucoes-v2)
 
-Sistema completo de gerenciamento financeiro pessoal com backend em Node.js/Express e frontend em AngularJS, utilizando PostgreSQL como banco de dados. Permite controle de receitas, despesas (incluindo parceladas), categorias, com visualização de gráficos e relatórios mensais.
+Sistema completo de gerenciamento financeiro pessoal com backend em Node.js/Express e frontend em AngularJS, utilizando PostgreSQL como banco de dados. Permite controle de receitas, despesas (incluindo parceladas), categorias, com visualização de gráficos, relatórios avançados, dashboard interativo, exportação de dados e notificações por email.
 
 ## 📋 Estrutura do Projeto
 
@@ -17,8 +18,11 @@ Controle-Financeiro-SQL/
 ├── controllers/              # Controladores da API
 │   ├── authController.js     # Autenticação e usuários
 │   ├── categoriaController.js # Gerenciamento de categorias
+│   ├── dashboardController.js # Dashboard financeiro aprimorado
 │   ├── debugController.js    # Ferramentas de depuração
-│   └── movimentacaoController.js # Movimentações financeiras (incluindo parcelas)
+│   ├── exportController.js   # Exportação de dados (CSV, JSON)
+│   ├── movimentacaoController.js # Movimentações financeiras (incluindo parcelas)
+│   └── relatorioController.js # Relatórios financeiros avançados
 ├── models/                   # Modelos de dados (Sequelize)
 │   ├── Categoria.js
 │   ├── Movimentacao.js       # Incluindo campos para parcelas
@@ -28,6 +32,8 @@ Controle-Financeiro-SQL/
 │   ├── css/                  # Estilos CSS
 │   ├── js/                   # JavaScript
 │   │   ├── controllers/      # Controllers AngularJS
+│   │   │   ├── dashboardController.js # Controller do dashboard aprimorado
+│   │   │   └── relatoriosController.js # Controller de relatórios avançados
 │   │   └── services/         # Services AngularJS
 │   ├── views/                # Templates HTML
 │   ├── debug_movimentacoes.html # Página de depuração
@@ -35,10 +41,18 @@ Controle-Financeiro-SQL/
 ├── routes/                   # Rotas da API
 │   ├── authRoutes.js
 │   ├── categoriaRoutes.js
+│   ├── dashboardRoutes.js    # Rotas para o dashboard aprimorado
 │   ├── debugRoutes.js
+│   ├── exportRoutes.js       # Rotas para exportação de dados
 │   ├── index.js              # Configuração central de rotas
-│   └── movimentacaoRoutes.js
-├── adicionar_campos_parcelas.js # Script de migração para suporte a parcelas
+│   ├── movimentacaoRoutes.js
+│   └── relatorioRoutes.js    # Rotas para relatórios avançados
+├── scripts/                 # Scripts de manutenção e monitoramento
+│   ├── check_vencimentos.js  # Verifica vencimentos próximos e envia notificações
+│   └── health_check.js       # Verifica a saúde do sistema
+├── utils/                    # Utilitários diversos
+│   ├── emailService.js       # Serviço de envio de emails e notificações
+│   └── logger.js             # Sistema de logging avançado
 ├── app.log                   # Logs da aplicação
 ├── backup_diario.sh          # Script para backup diário automático
 ├── index.js                  # Ponto de entrada da aplicação
@@ -160,14 +174,35 @@ psql -U postgres -c "CREATE DATABASE controle_financeiro;"
 - Datas de competência e vencimento separadas
 - Cálculo automático de saldo
 
-### Dashboard
-- Gráficos de evolução mensal
-- Gráficos por categoria
-- Resumo financeiro
+### Dashboard Aprimorado
+- Gráficos de evolução mensal usando Chart.js
+- Gráficos por categoria com dados interativos
+- Resumo financeiro em cards visuais
+- Próximos vencimentos com botão para pagamento rápido
+- Últimas movimentações com visualização detalhada
+- Seleção de período para análise personalizada
+
+### Relatórios Avançados
+- Fluxo de caixa mensal anualizado
+- Gastos por categoria em período específico
+- Evolução patrimonial em diversos períodos (3, 6, 12, 24 meses)
+- Visualização gráfica interativa de dados financeiros
+
+### Exportação de Dados
+- Exportação de movimentações em CSV (compatível com Excel/Google Sheets)
+- Exportação de movimentações em JSON (para desenvolvedores/integrações)
+- Filtros por período, categoria e tipo de movimentação
+
+### Sistema de Notificações
+- Alertas por email para vencimentos próximos
+- Templates de email responsivos e informativos
+- Configuração flexível de parâmetros de notificação
 
 ### Diagnóstico e Depuração
 - Página de debug para consultas SQL
 - Scripts de manutenção do banco
+- Monitoramento de saúde do sistema
+- Logs detalhados e estruturados
 
 ## 🔧 Manutenção
 
@@ -197,7 +232,51 @@ Verifica o status de todos os componentes (PostgreSQL, backend, frontend)
 - Logs disponíveis em `app.log`
 - Página de debug em `http://localhost:8000/debug_movimentacoes.html`
 
+## 📝 Status de Desenvolvimento e Próximos Passos
+
+### Implementado até 03/07/2025:
+
+- ✅ Dashboard financeiro aprimorado com visualização de saldo, fluxo de caixa e vencimentos
+- ✅ Relatórios financeiros avançados (fluxo de caixa, categorias, evolução patrimonial)
+- ✅ Exportação de dados em formatos CSV e JSON
+- ✅ Sistema de notificações por email para vencimentos próximos
+- ✅ Script de verificação de saúde do sistema corrigido
+- ✅ Integração de Chart.js para gráficos interativos
+
+### Próximos Passos Recomendados:
+
+- ⬜ Testes unitários para os novos controladores (relatórios, exportação, dashboard)
+- ⬜ Configuração do serviço de email em ambiente de produção
+- ⬜ Integração do script de verificação de vencimentos no cron (sugestão: diário às 7h)
+- ⬜ Melhorias na responsividade do frontend para dispositivos móveis
+- ⬜ Implementação de dashboard para dispositivos móveis
+- ⬜ Implementação de métricas de performance do sistema
+- ⬜ Criação de versão API para integração com outros sistemas
+
+## 📊 Backlog de Funcionalidades
+
+- Sistema de metas financeiras
+- Upload de comprovantes para movimentações
+- Dashboards personalizados por usuário
+- Geração de relatórios fiscais (imposto de renda)
+- Integração com APIs bancárias
+
 ## 🔄 Correções Recentes
+
+### Resolvido em 03/07/2025
+
+1. **Correção do Dashboard Financeiro**: Correções implementadas para resolver erros 500 no backend e problemas de renderização no frontend.
+   - Removidas referências ao valor `'cancelado'` no filtro `status_pagamento` (não existe no enum do PostgreSQL)
+   - Corrigida função `alterarPeriodo()` no frontend que chamava função inexistente `carregarDados()`
+   - Implementado tratamento robusto de tipos para mês e ano tanto no frontend quanto no backend
+   - Melhorado tratamento de erros para evitar quebras na interface quando APIs retornam erro
+   
+### Problemas Pendentes
+   - Ainda ocorrem erros 500 ao selecionar alguns meses específicos (maio/5)
+   - Possíveis problemas na integração com toastr para notificações
+   - O gráfico de fluxo mensal pode não estar sendo atualizado corretamente ao trocar o período
+
+### Correções Anteriores
 
 1. **Implementação de Parcelas**: Adicionado suporte completo a despesas parceladas
 2. **Formatação de Valores**: Corrigido problema com formato numérico para evitar erro no AngularJS
@@ -288,6 +367,13 @@ Verifica o status de todos os componentes (PostgreSQL, backend, frontend)
 1. Verifique o formato do valor (deve usar ponto como separador decimal)
 2. Confirme que o número de parcelas é maior ou igual a 2
 3. Verifique os logs em `app.log` para detalhes do erro
+
+### Erro ao adicionar movimentação: "controller.normalizarData is not a function"
+
+**Solução**: Este problema foi corrigido na versão 2.1.0. A função `normalizarData` agora está corretamente definida como método do objeto `controller`. Se o erro persistir após a atualização:
+1. Verifique se está usando a versão mais recente do código
+2. Reinicie o servidor completamente usando `./start.sh restart`
+3. Verifique o arquivo `/controllers/movimentacaoController.js` para confirmar que todas as chamadas para a função `normalizarData` estão utilizando o prefixo `controller.`
 
 ### Postgres não inicia
 

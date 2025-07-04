@@ -1,0 +1,291 @@
+<!-- Página de Relatórios Avançados -->
+<div class="container-fluid" ng-controller="RelatoriosController">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Relatórios Financeiros</h1>
+            <p class="lead">Análise detalhada das suas finanças</p>
+            
+            <!-- Navegação entre tipos de relatório -->
+            <ul class="nav nav-tabs mb-4">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#fluxoCaixa">Fluxo de Caixa</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#gastosPorCategoria">Gastos por Categoria</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#evolucaoPatrimonial">Evolução Patrimonial</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#exportacao">Exportação de Dados</a>
+                </li>
+            </ul>
+            
+            <!-- Conteúdo das abas -->
+            <div class="tab-content">
+                <!-- Fluxo de Caixa -->
+                <div id="fluxoCaixa" class="tab-pane fade show active">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3>Fluxo de Caixa Anual</h3>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <div class="form-inline justify-content-end">
+                                        <div class="form-group">
+                                            <label class="mr-2">Ano:</label>
+                                            <select class="form-control" ng-model="relatorios.fluxoCaixa.ano" 
+                                                    ng-options="ano for ano in anos" ng-change="carregarFluxoCaixa()">
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div ng-if="carregandoFluxo" class="text-center p-5">
+                                <i class="fa fa-spinner fa-spin fa-3x"></i>
+                                <p>Carregando dados...</p>
+                            </div>
+                            
+                            <div ng-if="!carregandoFluxo && relatorios.fluxoCaixa.dados">
+                                <!-- Gráfico -->
+                                <div class="chart-container" style="position: relative; height:50vh; width:100%">
+                                    <canvas id="graficoFluxoCaixa"></canvas>
+                                </div>
+                                
+                                <!-- Tabela com os dados -->
+                                <div class="table-responsive mt-4">
+                                    <table class="table table-bordered table-hover">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>Mês</th>
+                                                <th class="text-right">Receitas</th>
+                                                <th class="text-right">Despesas</th>
+                                                <th class="text-right">Saldo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="mes in relatorios.fluxoCaixa.dados.meses">
+                                                <td>{{mes.nome}}</td>
+                                                <td class="text-right text-success">{{mes.receitas | currency:'R$ '}}</td>
+                                                <td class="text-right text-danger">{{mes.despesas | currency:'R$ '}}</td>
+                                                <td class="text-right" ng-class="{'text-success': mes.saldo >= 0, 'text-danger': mes.saldo < 0}">
+                                                    {{mes.saldo | currency:'R$ '}}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="font-weight-bold">
+                                                <td>TOTAL</td>
+                                                <td class="text-right text-success">{{relatorios.fluxoCaixa.dados.totais.receitas | currency:'R$ '}}</td>
+                                                <td class="text-right text-danger">{{relatorios.fluxoCaixa.dados.totais.despesas | currency:'R$ '}}</td>
+                                                <td class="text-right" ng-class="{'text-success': relatorios.fluxoCaixa.dados.totais.saldo >= 0, 'text-danger': relatorios.fluxoCaixa.dados.totais.saldo < 0}">
+                                                    {{relatorios.fluxoCaixa.dados.totais.saldo | currency:'R$ '}}
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gastos por Categoria -->
+                <div id="gastosPorCategoria" class="tab-pane fade">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3>Gastos por Categoria</h3>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <div class="form-inline justify-content-end">
+                                        <div class="form-group mr-2">
+                                            <label class="mr-2">Mês:</label>
+                                            <select class="form-control" ng-model="relatorios.gastosPorCategoria.mes" 
+                                                    ng-options="mes.valor as mes.nome for mes in meses" ng-change="carregarGastosPorCategoria()">
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="mr-2">Ano:</label>
+                                            <select class="form-control" ng-model="relatorios.gastosPorCategoria.ano" 
+                                                    ng-options="ano for ano in anos" ng-change="carregarGastosPorCategoria()">
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div ng-if="carregandoGastos" class="text-center p-5">
+                                <i class="fa fa-spinner fa-spin fa-3x"></i>
+                                <p>Carregando dados...</p>
+                            </div>
+                            
+                            <div ng-if="!carregandoGastos && relatorios.gastosPorCategoria.dados">
+                                <!-- Gráfico -->
+                                <div class="chart-container" style="position: relative; height:50vh; width:100%">
+                                    <canvas id="graficoGastosPorCategoria"></canvas>
+                                </div>
+                                
+                                <!-- Tabela com os dados -->
+                                <div class="table-responsive mt-4">
+                                    <h4 class="mb-3">
+                                        Período: {{relatorios.gastosPorCategoria.dados.periodo.nome_mes}} / {{relatorios.gastosPorCategoria.dados.periodo.ano}}
+                                    </h4>
+                                    <table class="table table-bordered table-hover">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>Categoria</th>
+                                                <th class="text-right">Valor</th>
+                                                <th class="text-right">% do Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="categoria in relatorios.gastosPorCategoria.dados.categorias">
+                                                <td>{{categoria.descricao}}</td>
+                                                <td class="text-right text-danger">{{categoria.total | currency:'R$ '}}</td>
+                                                <td class="text-right">{{categoria.percentual}}%</td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="font-weight-bold">
+                                                <td>TOTAL</td>
+                                                <td class="text-right text-danger">{{relatorios.gastosPorCategoria.dados.total_geral | currency:'R$ '}}</td>
+                                                <td class="text-right">100%</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Evolução Patrimonial -->
+                <div id="evolucaoPatrimonial" class="tab-pane fade">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3>Evolução Patrimonial</h3>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <div class="form-inline justify-content-end">
+                                        <div class="form-group">
+                                            <label class="mr-2">Período:</label>
+                                            <select class="form-control" ng-model="relatorios.evolucaoPatrimonial.periodo" 
+                                                    ng-options="periodo.valor as periodo.nome for periodo in periodos" ng-change="carregarEvolucaoPatrimonial()">
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div ng-if="carregandoEvolucao" class="text-center p-5">
+                                <i class="fa fa-spinner fa-spin fa-3x"></i>
+                                <p>Carregando dados...</p>
+                            </div>
+                            
+                            <div ng-if="!carregandoEvolucao && relatorios.evolucaoPatrimonial.dados">
+                                <!-- Gráfico -->
+                                <div class="chart-container" style="position: relative; height:50vh; width:100%">
+                                    <canvas id="graficoEvolucaoPatrimonial"></canvas>
+                                </div>
+                                
+                                <!-- Tabela com os dados -->
+                                <div class="table-responsive mt-4">
+                                    <h4 class="mb-3">
+                                        Evolução nos últimos {{relatorios.evolucaoPatrimonial.periodo}} meses
+                                    </h4>
+                                    <table class="table table-bordered table-hover">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>Referência</th>
+                                                <th class="text-right">Patrimônio</th>
+                                                <th class="text-right">Variação</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="mes in relatorios.evolucaoPatrimonial.dados.evolucao">
+                                                <td>{{mes.referencia}}</td>
+                                                <td class="text-right" ng-class="{'text-success': mes.patrimonio >= 0, 'text-danger': mes.patrimonio < 0}">
+                                                    {{mes.patrimonio | currency:'R$ '}}
+                                                </td>
+                                                <td class="text-right" ng-if="$index > 0">
+                                                    <span ng-class="{'text-success': mes.patrimonio > relatorios.evolucaoPatrimonial.dados.evolucao[$index-1].patrimonio, 'text-danger': mes.patrimonio < relatorios.evolucaoPatrimonial.dados.evolucao[$index-1].patrimonio}">
+                                                        <i ng-class="{'fa fa-arrow-up': mes.patrimonio > relatorios.evolucaoPatrimonial.dados.evolucao[$index-1].patrimonio, 'fa fa-arrow-down': mes.patrimonio < relatorios.evolucaoPatrimonial.dados.evolucao[$index-1].patrimonio}"></i>
+                                                        {{(mes.patrimonio - relatorios.evolucaoPatrimonial.dados.evolucao[$index-1].patrimonio) | currency:'R$ '}}
+                                                    </span>
+                                                </td>
+                                                <td ng-if="$index === 0">-</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Exportação de Dados -->
+                <div id="exportacao" class="tab-pane fade">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Exportação de Dados</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h4>Filtros</h4>
+                                    <div class="form-group">
+                                        <label>Data Inicial</label>
+                                        <input type="date" class="form-control" ng-model="exportacao.filtros.dataInicio">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Data Final</label>
+                                        <input type="date" class="form-control" ng-model="exportacao.filtros.dataFim">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Tipo de Movimentação</label>
+                                        <select class="form-control" ng-model="exportacao.filtros.tipo">
+                                            <option value="">Todos</option>
+                                            <option value="receita">Receitas</option>
+                                            <option value="despesa">Despesas</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h4>Formato de Exportação</h4>
+                                    <p class="text-muted">Escolha o formato para exportar seus dados financeiros</p>
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <h5>CSV (Excel, LibreOffice, Google Sheets)</h5>
+                                            <p>Formato compatível com a maioria dos aplicativos de planilha.</p>
+                                            <button class="btn btn-primary" ng-click="exportarCSV()">
+                                                <i class="fa fa-file-excel-o"></i> Exportar para CSV
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5>JSON (Desenvolvedores)</h5>
+                                            <p>Formato ideal para desenvolvedores e integração com outros sistemas.</p>
+                                            <button class="btn btn-info" ng-click="exportarJSON()">
+                                                <i class="fa fa-file-code-o"></i> Exportar para JSON
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

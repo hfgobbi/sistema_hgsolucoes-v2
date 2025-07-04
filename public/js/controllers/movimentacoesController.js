@@ -8,12 +8,25 @@ app.controller('MovimentacoesListController', ['$scope', '$location', 'movimenta
     // Lista de movimentações
     vm.movimentacoes = [];
     
+    // Informações de paginação
+    vm.paginacao = {
+      pagina: 1,          // Página atual
+      limite: 10,         // Itens por página
+      totalItens: 0,      // Total de itens
+      totalPaginas: 0     // Total de páginas
+    };
+    
     // Filtros
     vm.filtros = {
       mes: new Date().getMonth() + 1, // Mês atual (1-12)
       ano: new Date().getFullYear(),
       tipo: null,
-      categoria_id: null
+      categoria_id: null,
+      periodo: "", // Diário, semanal, mensal ou personalizado
+      por_vencimento: false, // Se true, usará data_vencimento em vez de data
+      incluir_cancelados: false, // Se true, incluirá movimentações canceladas
+      pagina: 1,          // Página atual (para filtros)
+      limite: 10          // Limite por página (para filtros)
     };
     
     // Meses para o filtro
@@ -65,19 +78,69 @@ app.controller('MovimentacoesListController', ['$scope', '$location', 'movimenta
     vm.carregarMovimentacoes = function() {
       // Formatar o mês para ter sempre 2 dígitos
       var filtros = Object.assign({}, vm.filtros);
+      
+      // Log detalhado para debug
+      console.log('Filtros iniciais:', JSON.stringify(filtros));
+      
       if (filtros.mes) {
         filtros.mes = ("0" + filtros.mes).slice(-2);
       }
       
-      console.log('Buscando movimentações com filtros:', filtros);
+      // Converter valores booleanos para strings para passar na URL
+      if (filtros.por_vencimento) {
+        filtros.por_vencimento = "true";
+      } else {
+        delete filtros.por_vencimento; // Remover se for false para não enviar na URL
+      }
+      
+      if (filtros.incluir_cancelados) {
+        filtros.incluir_cancelados = "true";
+      } else {
+        delete filtros.incluir_cancelados; // Remover se for false para não enviar na URL
+      }
+      
+      // Se tipo está vazio como string, converte para null
+      if (filtros.tipo === '') {
+        filtros.tipo = null;
+      }
+      
+      // Remover período se estiver vazio
+      if (!filtros.periodo) {
+        delete filtros.periodo;
+      }
+      
+      // Se categoria_id é uma string vazia, converte para null
+      if (filtros.categoria_id === '') {
+        filtros.categoria_id = null;
+      }
+      
+      // Atualizar paginação nos filtros
+      filtros.pagina = vm.paginacao.pagina;
+      filtros.limite = vm.paginacao.limite;
+      
+      console.log('Buscando movimentações com filtros processados:', filtros);
       
       movimentacaoService.listar(filtros)
-        .then(function(movimentacoes) {
-          console.log('Movimentações encontradas:', movimentacoes.length);
-          vm.movimentacoes = movimentacoes;
+        .then(function(resultado) {
+          // Log da resposta completa para debug
+          console.log('Resposta completa do serviço:', resultado);
+          
+          // Atualizar dados de paginação
+          vm.movimentacoes = resultado.resultados || [];
+          vm.paginacao.totalItens = resultado.total || 0;
+          vm.paginacao.totalPaginas = resultado.totalPaginas || Math.ceil(resultado.total / vm.paginacao.limite) || 1;
+          vm.paginacao.pagina = resultado.pagina || filtros.pagina;
+          
+          // Verificar os tipos de movimentações carregadas
+          var receitas = vm.movimentacoes.filter(function(m) { return m.tipo === 'receita'; }).length;
+          var despesas = vm.movimentacoes.filter(function(m) { return m.tipo === 'despesa'; }).length;
+          console.log('Movimentações carregadas:', vm.movimentacoes.length, 'de', vm.paginacao.totalItens, 
+                    '(Receitas:', receitas, 'Despesas:', despesas, ')');
+          console.log('Paginação:', vm.paginacao);
         })
         .catch(function(erro) {
           console.error('Erro ao carregar movimentações:', erro);
+          alert('Erro ao carregar movimentações. Verifique o console para mais detalhes.');
         });
     };
     
@@ -85,7 +148,49 @@ app.controller('MovimentacoesListController', ['$scope', '$location', 'movimenta
     vm.aplicarFiltros = function() {
       // Log para verificar os filtros sendo enviados
       console.log('Aplicando filtros:', JSON.stringify(vm.filtros));
+      // Resetar para a primeira página ao aplicar novos filtros
+      vm.paginacao.pagina = 1;
       vm.carregarMovimentacoes();
+    };
+    
+    // Métodos de navegação de páginas
+    vm.irParaPagina = function(pagina) {
+      // Verificar limites válidos
+      if (pagina < 1 || pagina > vm.paginacao.totalPaginas) return;
+      
+      vm.paginacao.pagina = pagina;
+      vm.carregarMovimentacoes();
+    };
+    
+    vm.irParaPrimeiraPagina = function() {
+      vm.irParaPagina(1);
+    };
+    
+    vm.irParaPaginaAnterior = function() {
+      vm.irParaPagina(vm.paginacao.pagina - 1);
+    };
+    
+    vm.irParaProximaPagina = function() {
+      vm.irParaPagina(vm.paginacao.pagina + 1);
+    };
+    
+    vm.irParaUltimaPagina = function() {
+      vm.irParaPagina(vm.paginacao.totalPaginas);
+    };
+    
+    // Alterar itens por página
+    vm.alterarItensPorPagina = function() {
+      vm.paginacao.pagina = 1; // Voltar para a primeira página
+      vm.carregarMovimentacoes();
+    };
+    
+    // Calcular o número do último item na página atual
+    vm.calcularUltimoItem = function() {
+      var ultimoItem = vm.paginacao.pagina * vm.paginacao.limite;
+      if (ultimoItem > vm.paginacao.totalItens) {
+        ultimoItem = vm.paginacao.totalItens;
+      }
+      return ultimoItem;
     };
     
     // Traduzir status de pagamento
@@ -125,6 +230,9 @@ app.controller('MovimentacoesListController', ['$scope', '$location', 'movimenta
     
     // Formatar valor 
     vm.formatarValor = function(valor, tipo) {
+      if (valor === null || valor === undefined || isNaN(valor)) {
+        return (tipo === 'despesa' ? '-' : '') + 'R$ 0.00';
+      }
       return (tipo === 'despesa' ? '-' : '') + 'R$ ' + parseFloat(valor).toFixed(2);
     };
     

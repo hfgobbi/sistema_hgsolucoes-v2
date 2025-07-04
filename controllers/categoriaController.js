@@ -5,24 +5,34 @@ module.exports = (app) => {
   // Listar todas as categorias do usuário
   controller.listar = async (req, res) => {
     try {
-      const usuarioId = req.usuario.id;
+      console.log('Requisição recebida para listar categorias');
+      const usuarioId = req.usuario ? req.usuario.id : null;
       
-      // Buscar as categorias do usuário
-      const categorias = await Categoria.findAll({
+      if (!usuarioId) {
+        console.error('Erro: ID do usuário não encontrado no token JWT');
+        return res.status(401).json({ erro: 'Autenticação inválida - ID de usuário não encontrado' });
+      }
+      
+      console.log(`Buscando categorias para o usuário ID: ${usuarioId}`);
+      
+      const categorias = await app.models.Categoria.findAll({ 
         where: { usuario_id: usuarioId },
-        order: [['descricao', 'ASC']]
+        order: [['descricao', 'ASC']] 
       });
+      
+      console.log(`${categorias.length} categorias encontradas para o usuário ${usuarioId}`);
       
       return res.status(200).json(categorias);
     } catch (error) {
       console.error('Erro ao listar categorias:', error);
-      return res.status(500).json({ message: 'Erro interno do servidor' });
+      return res.status(500).json({ erro: 'Erro ao listar categorias', mensagem: error.message });
     }
   };
   
   // Buscar uma categoria específica
   controller.buscarPorId = async (req, res) => {
     try {
+      console.log('Requisição recebida para buscar categoria por ID');
       const { id } = req.params;
       const usuarioId = req.usuario.id;
       

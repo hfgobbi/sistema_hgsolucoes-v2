@@ -1,21 +1,28 @@
-module.exports = (app) => {
-  const movController = app.controllers.movimentacaoController;
-  const router = require('express').Router();
+module.exports = app => {
+  const movimentacaoController = app.controllers.movimentacaoController;
   
-  // Todas estas rotas precisam estar autenticadas
-  // O middleware de autenticação já é aplicado em app.use('/api', authController.verificarToken)
+  // IMPORTANTE: Ordem de definição de rotas é crítica no Express!
+  // Rotas específicas devem vir ANTES das rotas com parâmetros
   
-  router.get('/movimentacoes', movController.listar);
-  router.get('/movimentacoes/:id', movController.buscarPorId);
-  router.post('/movimentacoes', movController.adicionar);
-  router.put('/movimentacoes/:id', movController.atualizar);
-  router.delete('/movimentacoes/:id', movController.remover);
+  // Rota de estatísticas para dashboard
+  app.route('/api/movimentacoes/resumo')
+    .all(app.controllers.authController.verificarToken)
+    .get(movimentacaoController.estatisticas);
   
-  // Rota para estatísticas do dashboard
-  router.get('/estatisticas', movController.estatisticas);
+  app.route('/api/movimentacoes')
+    .all(app.controllers.authController.verificarToken)
+    .get(movimentacaoController.listar)
+    .post(movimentacaoController.adicionar);
   
-  // Rota para marcar uma movimentação como paga
-  router.patch('/movimentacoes/:id/pagar', movController.marcarComoPago);
+  // Rota para marcar como pago (precisa vir antes da rota genérica com :id)
+  app.route('/api/movimentacoes/:id/marcar-pago')
+    .all(app.controllers.authController.verificarToken)
+    .put(movimentacaoController.marcarComoPago);
   
-  return router;
+  // Rota para operações com ID específico (precisa vir por último)
+  app.route('/api/movimentacoes/:id')
+    .all(app.controllers.authController.verificarToken)
+    .get(movimentacaoController.buscarPorId)
+    .put(movimentacaoController.atualizar)
+    .delete(movimentacaoController.remover);
 };

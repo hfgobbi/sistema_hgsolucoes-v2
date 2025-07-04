@@ -38,6 +38,29 @@
                   ng-options="cat.id as cat.descricao for cat in vm.categoriasFiltro">
           </select>
         </div>
+
+        <!-- Filtro por período -->
+        <div class="form-group mr-2">
+          <label for="filtroPeriodo" class="mr-2">Período:</label>
+          <select id="filtroPeriodo" class="form-control" ng-model="vm.filtros.periodo">
+            <option value="">Todos</option>
+            <option value="diario">Diário</option>
+            <option value="semanal">Semanal</option>
+            <option value="mensal">Mensal</option>
+          </select>
+        </div>
+
+        <!-- Filtro por vencimento -->
+        <div class="form-check form-check-inline mr-2">
+          <input class="form-check-input" type="checkbox" id="filtroVencimento" ng-model="vm.filtros.por_vencimento">
+          <label class="form-check-label" for="filtroVencimento">Por vencimento</label>
+        </div>
+
+        <!-- Checkbox para incluir cancelados -->
+        <div class="form-check form-check-inline mr-2">
+          <input class="form-check-input" type="checkbox" id="filtroIncluirCancelados" ng-model="vm.filtros.incluir_cancelados">
+          <label class="form-check-label" for="filtroIncluirCancelados">Incluir cancelados</label>
+        </div>
         
         <!-- Botão para aplicar filtros -->
         <button class="btn btn-primary" ng-click="vm.aplicarFiltros()">
@@ -70,8 +93,8 @@
                   <th>Tipo</th>
                   <th>Categoria</th>
                   <th>Data</th>
-                  <th ng-if="vm.filtros.tipo !== 'receita'">Vencimento</th>
-                  <th ng-if="vm.filtros.tipo !== 'receita'">Status</th>
+                  <th>Vencimento</th>
+                  <th>Status</th>
                   <th width="180">Ações</th>
                 </tr>
               </thead>
@@ -93,12 +116,13 @@
                   </td>
                   <td>{{mov.categoria.descricao}}</td>
                   <td>{{mov.data | date:'dd/MM/yyyy'}}</td>
-                  <td ng-if="mov.tipo !== 'receita'">
-                    <span ng-if="mov.data_vencimento" ng-class="{'text-danger font-weight-bold': vm.estaVencida(mov)}">{{mov.data_vencimento | date:'dd/MM/yyyy'}}</span>
-                    <span ng-if="!mov.data_vencimento">-</span>
+                  <td>
+                    <span ng-if="mov.tipo !== 'receita' && mov.data_vencimento" ng-class="{'text-danger font-weight-bold': vm.estaVencida(mov)}">{{mov.data_vencimento | date:'dd/MM/yyyy'}}</span>
+                    <span ng-if="mov.tipo !== 'receita' && !mov.data_vencimento">-</span>
+                    <span ng-if="mov.tipo === 'receita'">-</span>
                   </td>
-                  <td ng-if="mov.tipo !== 'receita'">
-                    <span class="badge" ng-class="{
+                  <td>
+                    <span ng-if="mov.tipo !== 'receita'" class="badge" ng-class="{
                       'badge-success': mov.status_pagamento === 'pago', 
                       'badge-warning': mov.status_pagamento === 'pendente', 
                       'badge-info': mov.status_pagamento === 'a_pagar', 
@@ -106,6 +130,7 @@
                     }">
                       {{vm.traduzirStatus(mov.status_pagamento)}}
                     </span>
+                    <span ng-if="mov.tipo === 'receita'">-</span>
                   </td>
                   <td>
                     <button class="btn btn-sm btn-success mr-1" ng-if="mov.tipo === 'despesa' && mov.status_pagamento !== 'pago'" 
@@ -121,7 +146,7 @@
                   </td>
                 </tr>
                 <tr ng-if="vm.movimentacoes.length === 0">
-                  <td colspan="6" class="text-center py-3">
+                  <td colspan="8" class="text-center py-3">
                     <p class="text-muted mb-0">
                       Nenhuma movimentação encontrada para os filtros selecionados
                     </p>
@@ -132,6 +157,65 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Paginação -->
+  <div class="row mt-3" ng-if="vm.movimentacoes.length > 0">
+    <div class="col-md-6">
+      <div class="form-inline">
+        <label for="itensPorPagina" class="mr-2">Itens por página:</label>
+        <select id="itensPorPagina" class="form-control form-control-sm mr-3" 
+                ng-model="vm.paginacao.limite" 
+                ng-change="vm.alterarItensPorPagina()">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+        <span class="text-muted">
+          Exibindo {{ (vm.paginacao.pagina - 1) * vm.paginacao.limite + 1 }} - 
+          {{ vm.calcularUltimoItem() }} 
+          de {{ vm.paginacao.totalItens }} itens
+        </span>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <nav aria-label="Navegação de páginas">
+        <ul class="pagination justify-content-end">
+          <li class="page-item" ng-class="{disabled: vm.paginacao.pagina === 1}">
+            <a class="page-link" href="javascript:void(0)" ng-click="vm.irParaPrimeiraPagina()">
+              <i class="fas fa-angle-double-left"></i>
+            </a>
+          </li>
+          <li class="page-item" ng-class="{disabled: vm.paginacao.pagina === 1}">
+            <a class="page-link" href="javascript:void(0)" ng-click="vm.irParaPaginaAnterior()">
+              <i class="fas fa-angle-left"></i>
+            </a>
+          </li>
+          
+          <!-- Exibir número das páginas -->
+          <li class="page-item" ng-class="{active: vm.paginacao.pagina === n}" 
+              ng-repeat="n in [].constructor(vm.paginacao.totalPaginas) track by $index" 
+              ng-if="$index + 1 >= vm.paginacao.pagina - 2 && $index + 1 <= vm.paginacao.pagina + 2">
+            <a class="page-link" href="javascript:void(0)" ng-click="vm.irParaPagina($index + 1)">
+              {{ $index + 1 }}
+            </a>
+          </li>
+          
+          <li class="page-item" ng-class="{disabled: vm.paginacao.pagina === vm.paginacao.totalPaginas}">
+            <a class="page-link" href="javascript:void(0)" ng-click="vm.irParaProximaPagina()">
+              <i class="fas fa-angle-right"></i>
+            </a>
+          </li>
+          <li class="page-item" ng-class="{disabled: vm.paginacao.pagina === vm.paginacao.totalPaginas}">
+            <a class="page-link" href="javascript:void(0)" ng-click="vm.irParaUltimaPagina()">
+              <i class="fas fa-angle-double-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
     </div>
   </div>
   

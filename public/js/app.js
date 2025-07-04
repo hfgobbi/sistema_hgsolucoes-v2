@@ -41,11 +41,10 @@ app.directive('convertToNumber', function() {
 // Configuração das rotas
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   $routeProvider
-    // Rota para a página inicial (dashboard)
+    // Rota para a página inicial (dashboard aprimorado)
     .when('/', {
-      templateUrl: 'views/home.html',
-      controller: 'HomeController',
-      controllerAs: 'vm',
+      templateUrl: 'views/dashboard.html',
+      controller: 'DashboardController',
       resolve: {
         autenticado: ['authService', function(authService) {
           return authService.verificarAutenticacao();
@@ -103,9 +102,31 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
       }
     })
     
+    // Rota para relatórios financeiros avançados
+    .when('/relatorios', {
+      templateUrl: 'views/relatorios.html',
+      controller: 'RelatoriosController',
+      resolve: {
+        autenticado: ['authService', function(authService) {
+          return authService.verificarAutenticacao();
+        }]
+      }
+    })
+    
+    // Rota para página antiga (mantida para compatibilidade)
+    .when('/home-old', {
+      templateUrl: 'views/home.html',
+      controller: 'HomeController',
+      resolve: {
+        autenticado: ['authService', function(authService) {
+          return authService.verificarAutenticacao();
+        }]
+      }
+    })
+    
     // Rota para página não encontrada
     .otherwise({
-      redirectTo: '/'
+      redirectTo: '/home'
     });
 }]);
 

@@ -38,7 +38,7 @@ const Movimentacao = sequelize.define('Movimentacao', {
     allowNull: true
   },
   status_pagamento: {
-    type: DataTypes.ENUM('pago', 'pendente', 'a_pagar', 'vencido'),
+    type: DataTypes.ENUM('pago', 'pendente', 'a_pagar', 'vencido', 'cancelado'),
     defaultValue: 'pendente',
     allowNull: false
   },

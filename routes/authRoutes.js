@@ -9,5 +9,8 @@ module.exports = (app) => {
   // Middleware para verificar token em rotas protegidas
   app.use('/api', authController.verificarToken);
   
+  // Importante: registrar o roteador com o prefixo '/auth'
+  app.use('/auth', router);
+  
   return router;
 };
