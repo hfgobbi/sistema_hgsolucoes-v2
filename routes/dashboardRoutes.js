@@ -2,7 +2,7 @@ module.exports = app => {
   const dashboardController = app.controllers.dashboardController;
   
   // Rota para obter resumo mensal
-  app.route('/api/dashboard/resumo')
+  app.route('/api/dashboard/resumo-mensal')
     .all(app.controllers.authController.verificarToken)
     .get(dashboardController.getResumoMensal);
     
@@ -19,7 +19,8 @@ module.exports = app => {
   // Rota para marcar como pago via dashboard
   app.route('/api/dashboard/marcar-pago/:id')
     .all(app.controllers.authController.verificarToken)
-    .put(dashboardController.marcarComoPago);
+    .post(dashboardController.marcarComoPago)
+    .put(dashboardController.marcarComoPago); // Mantendo PUT para compatibilidade
 
   // Rotas adicionais para os novos endpoints
   app.route('/api/dashboard/parcelas-abertas')
@@ -33,4 +34,9 @@ module.exports = app => {
   app.route('/api/dashboard/tendencias-comparativas')
     .all(app.controllers.authController.verificarToken)
     .get(dashboardController.getTendenciasComparativas);
+    
+  // Rota para obter dados do fluxo de caixa (gráfico)
+  app.route('/api/dashboard/fluxo-caixa')
+    .all(app.controllers.authController.verificarToken)
+    .get(dashboardController.getFluxoCaixa);
 };

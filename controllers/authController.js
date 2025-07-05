@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const { Usuario } = require('../models/Usuario');
 
 // Chave secreta para geração de tokens JWT
@@ -11,23 +12,33 @@ module.exports = (app) => {
   controller.login = async (req, res) => {
     try {
       const { login, senha } = req.body;
+      console.log('Tentativa de login:', { login, senha });
       
       // Verifica se os campos foram fornecidos
       if (!login || !senha) {
+        console.log('Campos obrigatórios não fornecidos');
         return res.status(400).json({ message: 'Login e senha são obrigatórios' });
       }
       
       // Busca o usuário pelo login
       const usuario = await Usuario.findOne({ where: { login } });
+      console.log('Usuário encontrado:', usuario ? 'sim' : 'não');
+      if (usuario) {
+        console.log('Dados do usuário:', { id: usuario.id, login: usuario.login, senha: usuario.senha.substring(0, 20) + '...' });
+      }
       
       // Verifica se o usuário existe
       if (!usuario) {
+        console.log('Usuário não encontrado');
         return res.status(401).json({ message: 'Login ou senha incorretos' });
       }
       
       // Verifica a senha
+      console.log('Verificando senha...');
       const senhaCorreta = await usuario.verificarSenha(senha);
+      console.log('Senha correta:', senhaCorreta);
       if (!senhaCorreta) {
+        console.log('Senha incorreta');
         return res.status(401).json({ message: 'Login ou senha incorretos' });
       }
       

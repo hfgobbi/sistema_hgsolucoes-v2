@@ -56,7 +56,11 @@ Usuario.beforeCreate(async (usuario) => {
 
 // Método para verificar senha
 Usuario.prototype.verificarSenha = async function(senha) {
-  return await bcrypt.compare(senha, this.senha);
+  console.log('verificarSenha - senha informada:', senha);
+  console.log('verificarSenha - hash armazenado:', this.senha);
+  const resultado = await bcrypt.compare(senha, this.senha);
+  console.log('verificarSenha - resultado:', resultado);
+  return resultado;
 };
 
 // Função para inicializar usuário admin

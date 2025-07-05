@@ -263,6 +263,13 @@ Verifica o status de todos os componentes (PostgreSQL, backend, frontend)
 
 ## 🔄 Correções Recentes
 
+### Resolvido em 04/07/2025
+
+1. **Confirmação de Pagamento**: Implementada confirmação detalhada ao marcar despesas como pagas com feedback visual
+2. **Método HTTP Corrigido**: Alinhado método HTTP entre frontend e backend para marcação de pagamentos
+3. **Feedback Visual**: Adicionado indicador de carregamento durante processamento do pagamento
+4. **UX Melhorada**: Implementado atraso controlado para garantir visibilidade da confirmação e atualização dos dados
+
 ### Resolvido em 03/07/2025
 
 1. **Correção do Dashboard Financeiro**: Correções implementadas para resolver erros 500 no backend e problemas de renderização no frontend.
