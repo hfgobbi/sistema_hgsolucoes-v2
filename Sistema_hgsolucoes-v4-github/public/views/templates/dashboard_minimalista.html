@@ -1,0 +1,215 @@
+<!-- Template Minimalista - HG Soluções Pro 2.0 -->
+<div class="container-fluid py-3 bg-light">
+  <!-- Cabeçalho Minimalista -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="h4 font-weight-light text-primary">Visão Financeira</h2>
+        <div class="d-flex align-items-center">
+          <div class="mr-3">
+            <span class="text-muted">Período: </span>
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-secondary active">Mês</button>
+              <button class="btn btn-outline-secondary">Trimestre</button>
+              <button class="btn btn-outline-secondary">Ano</button>
+            </div>
+          </div>
+          <select class="form-control form-control-sm border-0 bg-light text-primary">
+            <option>Julho 2025</option>
+            <option>Junho 2025</option>
+            <option>Maio 2025</option>
+            <option>Abril 2025</option>
+          </select>
+        </div>
+      </div>
+      <hr class="my-2">
+    </div>
+  </div>
+  
+  <!-- Cards com números principais - Estilo Minimalista -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="rounded-circle p-3 bg-light mr-3">
+              <i class="fas fa-arrow-up text-success"></i>
+            </div>
+            <div>
+              <h6 class="text-muted mb-0">Receitas</h6>
+              <h3>R$ {{vm.totais.receitas | number:2}}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="rounded-circle p-3 bg-light mr-3">
+              <i class="fas fa-arrow-down text-danger"></i>
+            </div>
+            <div>
+              <h6 class="text-muted mb-0">Despesas</h6>
+              <h3>R$ {{vm.totais.despesas | number:2}}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="rounded-circle p-3 bg-light mr-3">
+              <i class="fas fa-wallet" ng-class="{'text-success': vm.totais.saldo >= 0, 'text-danger': vm.totais.saldo < 0}"></i>
+            </div>
+            <div>
+              <h6 class="text-muted mb-0">Saldo</h6>
+              <h3 ng-class="{'text-success': vm.totais.saldo >= 0, 'text-danger': vm.totais.saldo < 0}">
+                R$ {{vm.totais.saldo | number:2}}
+              </h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Gráfico Principal - Visual Clean -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="card-title">Fluxo de Caixa</h5>
+            <div>
+              <span class="badge bg-success text-white px-2 py-1 mr-2">
+                <i class="fas fa-circle mr-1"></i> Receitas
+              </span>
+              <span class="badge bg-danger text-white px-2 py-1 mr-2">
+                <i class="fas fa-circle mr-1"></i> Despesas
+              </span>
+              <span class="badge bg-info text-white px-2 py-1">
+                <i class="fas fa-circle mr-1"></i> Saldo
+              </span>
+            </div>
+          </div>
+          <canvas id="smooth-line-chart" class="chart chart-line" chart-data="vm.graficos.ondas.data"
+              chart-labels="vm.graficos.ondas.labels" chart-series="vm.graficos.ondas.series"
+              chart-options="vm.graficos.ondas.options" chart-colors="vm.graficos.ondas.colors" height="250">
+          </canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Resumo e Categorias - Two Panels -->
+  <div class="row">
+    <!-- Distribuição de categorias -->
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title">Categorias de Despesas</h5>
+            <a href="#" class="text-decoration-none">Ver detalhes</a>
+          </div>
+          
+          <div class="d-flex mb-3">
+            <div class="flex-grow-1 mr-4">
+              <canvas id="radar-chart" class="chart chart-radar" chart-data="[vm.graficos.despesas.data]"
+                  chart-labels="vm.graficos.despesas.labels" chart-options="vm.graficos.despesas.options"
+                  chart-colors="vm.graficos.despesas.colors" height="220">
+              </canvas>
+            </div>
+            <div style="width: 150px;">
+              <div ng-repeat="cat in vm.topCategoriasDespesas | limitTo:5" class="mb-2">
+                <div class="d-flex justify-content-between">
+                  <span class="small text-truncate">{{cat.nome}}</span>
+                  <span class="small text-muted">{{cat.percentual}}%</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar" ng-style="{'background-color': cat.cor, 'width': cat.percentual + '%'}"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Movimentações Recentes -->
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title">Movimentações Recentes</h5>
+            <a href="#" class="text-decoration-none">Ver todas</a>
+          </div>
+          
+          <div class="list-group list-group-flush">
+            <div class="list-group-item border-0 px-0 py-2" ng-repeat="mov in vm.movimentacoesRecentes | limitTo:5">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                  <div class="icon-square rounded mr-3" ng-class="{'bg-soft-success': mov.tipo === 'receita', 'bg-soft-danger': mov.tipo === 'despesa'}">
+                    <i class="fas" ng-class="{'fa-arrow-up': mov.tipo === 'receita', 'fa-arrow-down': mov.tipo === 'despesa'}"
+                       ng-class="{'text-success': mov.tipo === 'receita', 'text-danger': mov.tipo === 'despesa'}"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0">{{mov.descricao}}</h6>
+                    <small class="text-muted">{{mov.data | date:'dd/MM'}} • {{mov.categoria}}</small>
+                  </div>
+                </div>
+                <span ng-class="{'text-success': mov.tipo === 'receita', 'text-danger': mov.tipo === 'despesa'}">
+                  {{mov.tipo === 'receita' ? '+' : '-'}} R$ {{mov.valor | number:2}}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="text-center pt-3">
+            <button class="btn btn-sm btn-outline-primary">
+              <i class="fas fa-plus mr-1"></i> Nova Movimentação
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Rodapé com Ações Rápidas -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between">
+        <small class="text-muted">Última atualização: hoje às {{vm.ultimaAtualizacao | date:'HH:mm'}}</small>
+        <div>
+          <button class="btn btn-sm btn-light mr-2">
+            <i class="fas fa-file-export mr-1"></i> Exportar
+          </button>
+          <button class="btn btn-sm btn-light mr-2">
+            <i class="fas fa-print mr-1"></i> Imprimir
+          </button>
+          <button class="btn btn-sm btn-light">
+            <i class="fas fa-sync-alt mr-1"></i> Atualizar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- CSS adicional para este template -->
+  <style>
+    .bg-soft-success { background-color: rgba(40, 167, 69, 0.1); }
+    .bg-soft-danger { background-color: rgba(220, 53, 69, 0.1); }
+    .icon-square {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+    }
+  </style>
+</div>

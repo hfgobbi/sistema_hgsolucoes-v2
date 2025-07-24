@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste de Login Automático</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Teste de Login Automático</h1>
+    <div id="resultado"></div>
+    <button onclick="fazerLogin()">Login Automático</button>
+    <button onclick="testarDashboard()">Testar Dashboard</button>
+    <button onclick="limparStorage()">Limpar Storage</button>
+
+    <script>
+        function fazerLogin() {
+            $.ajax({
+                url: '/api/auth/login',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    login: 'admin',
+                    senha: 'admin'
+                }),
+                success: function(data) {
+                    console.log('Login realizado:', data);
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('usuario', JSON.stringify(data));
+                    $('#resultado').html('<p style="color: green;">Login realizado com sucesso! Token salvo.</p>');
+                },
+                error: function(xhr) {
+                    console.error('Erro no login:', xhr.responseJSON);
+                    $('#resultado').html('<p style="color: red;">Erro: ' + xhr.responseJSON.message + '</p>');
+                }
+            });
+        }
+
+        function testarDashboard() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                $('#resultado').html('<p style="color: red;">Nenhum token encontrado. Faça login primeiro.</p>');
+                return;
+            }
+
+            $.ajax({
+                url: '/api/dashboard/resumo-mensal?mes=6&ano=2025',
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                },
+                success: function(data) {
+                    console.log('Dados do dashboard:', data);
+                    $('#resultado').html('<p style="color: green;">Dashboard OK! Dados: ' + JSON.stringify(data) + '</p>');
+                },
+                error: function(xhr) {
+                    console.error('Erro no dashboard:', xhr.responseJSON);
+                    $('#resultado').html('<p style="color: red;">Erro: ' + xhr.responseJSON.message + '</p>');
+                }
+            });
+        }
+
+        function limparStorage() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('usuario');
+            $('#resultado').html('<p>Storage limpo.</p>');
+        }
+
+        // Verificar status inicial
+        $(document).ready(function() {
+            const token = localStorage.getItem('token');
+            const usuario = localStorage.getItem('usuario');
+            if (token) {
+                $('#resultado').html('<p>Token encontrado: ' + token.substring(0, 50) + '...</p>');
+            } else {
+                $('#resultado').html('<p>Nenhum token encontrado.</p>');
+            }
+        });
+    </script>
+</body>
+</html>

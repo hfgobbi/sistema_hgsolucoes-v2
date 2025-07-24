@@ -1,0 +1,194 @@
+/* Tema Escuro - HG Soluções Pro 2.0 */
+
+body.tema-escuro {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+/* Cards e Containers */
+body.tema-escuro .card {
+  background-color: #2d2d2d;
+  border-color: #444;
+}
+
+body.tema-escuro .card-header,
+body.tema-escuro .card-footer {
+  background-color: #2a2a2a;
+  border-color: #444;
+}
+
+body.tema-escuro .table {
+  color: #e0e0e0;
+}
+
+body.tema-escuro .table-hover tbody tr:hover {
+  background-color: #3a3a3a;
+}
+
+body.tema-escuro .table th,
+body.tema-escuro .table td {
+  border-color: #444;
+}
+
+/* Formulários */
+body.tema-escuro .form-control {
+  background-color: #333;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+body.tema-escuro .form-control:focus {
+  background-color: #404040;
+  border-color: #666;
+  color: #ffffff;
+}
+
+/* Textos */
+body.tema-escuro .text-muted {
+  color: #aaa !important;
+}
+
+body.tema-escuro .text-dark {
+  color: #e0e0e0 !important;
+}
+
+/* Corrige textos em tabelas e outras áreas */
+body.tema-escuro span,
+body.tema-escuro label,
+body.tema-escuro p,
+body.tema-escuro h1, body.tema-escuro h2, body.tema-escuro h3, body.tema-escuro h4, body.tema-escuro h5, body.tema-escuro h6 {
+  color: #e0e0e0;
+}
+
+/* Corrige texto em inputs e selects */
+body.tema-escuro input,
+body.tema-escuro select,
+body.tema-escuro textarea,
+body.tema-escuro option {
+  color: #e0e0e0 !important;
+  background-color: #333 !important;
+}
+
+/* Garante que o dropdown em selects seja legível */
+body.tema-escuro select option {
+  background-color: #333;
+  color: #e0e0e0;
+}
+
+/* Corrige texto em elementos de dashboard */
+body.tema-escuro .card-title,
+body.tema-escuro .card-text,
+body.tema-escuro .card-header,
+body.tema-escuro .chart-title,
+body.tema-escuro .chart-value {
+  color: #e0e0e0 !important;
+}
+
+/* Correções específicas para tabelas de transações e áreas da parte inferior */
+body.tema-escuro table,
+body.tema-escuro th,
+body.tema-escuro td,
+body.tema-escuro tr,
+body.tema-escuro .table-responsive {
+  color: #e0e0e0 !important;
+}
+
+body.tema-escuro .pagination,
+body.tema-escuro .pagination a,
+body.tema-escuro .pagination span,
+body.tema-escuro .page-link,
+body.tema-escuro .page-item {
+  color: #e0e0e0 !important;
+  background-color: #333 !important;
+  border-color: #555 !important;
+}
+
+body.tema-escuro .page-item.active .page-link {
+  background-color: #0069d9 !important;
+  border-color: #0062cc !important;
+}
+
+/* Garantir que textos nas áreas de transações sejam visíveis */
+body.tema-escuro .transacoes-container,
+body.tema-escuro #transacoes-detalhadas,
+body.tema-escuro [id*="transacoes"] {
+  color: #e0e0e0 !important;
+}
+
+/* Células com fundo claro na tabela de transações terão texto preto */
+body.tema-escuro tr[style*="background"] td,
+body.tema-escuro .table-danger td,
+body.tema-escuro .table-success td,
+body.tema-escuro .table-warning td,
+body.tema-escuro .table-info td,
+body.tema-escuro tr[class*="table-"] td {
+  color: #000 !important;
+}
+
+/* Específico para linhas de receitas (verde claro) e despesas (rosa claro) */
+body.tema-escuro tr[style*="background-color: rgba(255, 200, 200"] td,
+body.tema-escuro tr[style*="background-color: rgba(200, 255, 200"] td {
+  color: #000 !important;
+  font-weight: 500;
+}
+
+/* Corrigir cores específicas que podem estar sendo sobrepostas */
+body.tema-escuro a,
+body.tema-escuro .btn-link {
+  color: #8ab4f8 !important;
+}
+
+body.tema-escuro .text-danger {
+  color: #ff6b6b !important;
+}
+
+body.tema-escuro .text-success {
+  color: #69db7c !important;
+}
+
+body.tema-escuro .text-warning {
+  color: #ffd43b !important;
+}
+
+body.tema-escuro .text-info {
+  color: #4dabf7 !important;
+}
+
+/* Botões */
+body.tema-escuro .btn-outline-secondary {
+  color: #aaa;
+  border-color: #666;
+}
+
+body.tema-escuro .btn-outline-secondary:hover,
+body.tema-escuro .btn-outline-secondary:active,
+body.tema-escuro .btn-outline-secondary.active {
+  background-color: #444;
+  border-color: #888;
+  color: #fff;
+}
+
+/* Componentes específicos */
+body.tema-escuro .list-group-item {
+  background-color: #2d2d2d;
+  border-color: #444;
+}
+
+body.tema-escuro .bg-light {
+  background-color: #2a2a2a !important;
+}
+
+body.tema-escuro .border {
+  border-color: #444 !important;
+}
+
+/* Navegação */
+body.tema-escuro .nav-tabs .nav-link {
+  color: #aaa;
+}
+
+body.tema-escuro .nav-tabs .nav-link.active {
+  background-color: #2d2d2d;
+  color: #fff;
+  border-color: #444;
+}

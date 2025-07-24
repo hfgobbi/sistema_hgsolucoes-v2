@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debug Movimentações</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <style>
+    body { padding: 20px; }
+    .result-container { margin-top: 20px; border: 1px solid #ddd; padding: 10px; border-radius: 5px; }
+    pre { background-color: #f5f5f5; padding: 10px; border-radius: 5px; max-height: 300px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h1>Depuração de Movimentações</h1>
+        <p>Esta página ajuda a identificar problemas com a exibição de movimentações</p>
+        
+        <div class="panel panel-primary">
+          <div class="panel-heading">Filtros</div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Mês:</label>
+                  <select id="mes" class="form-control">
+                    <option value="01">Janeiro</option>
+                    <option value="02">Fevereiro</option>
+                    <option value="03">Março</option>
+                    <option value="04">Abril</option>
+                    <option value="05">Maio</option>
+                    <option value="06">Junho</option>
+                    <option value="07">Julho</option>
+                    <option value="08">Agosto</option>
+                    <option value="09">Setembro</option>
+                    <option value="10">Outubro</option>
+                    <option value="11">Novembro</option>
+                    <option value="12">Dezembro</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Ano:</label>
+                  <input type="number" id="ano" class="form-control" value="2025">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Tipo:</label>
+                  <select id="tipo" class="form-control">
+                    <option value="">Todos</option>
+                    <option value="receita">Receitas</option>
+                    <option value="despesa">Despesas</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>&nbsp;</label>
+                  <button id="btnBuscar" class="btn btn-primary form-control">Buscar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="panel panel-info">
+          <div class="panel-heading">Consulta SQL Direta</div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Consulta:</label>
+                  <div class="input-group">
+                    <input type="text" id="sqlQuery" class="form-control" value="SELECT * FROM Movimentacaos WHERE data >= '2025-02-01' AND data < '2025-03-01'">
+                    <span class="input-group-btn">
+                      <button id="btnSql" class="btn btn-info">Executar SQL</button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="result-container">
+          <h3>Resultado da Consulta API</h3>
+          <pre id="apiResult">Faça uma consulta...</pre>
+        </div>
+
+        <div class="result-container">
+          <h3>Resultado da Consulta SQL</h3>
+          <pre id="sqlResult">Faça uma consulta...</pre>
+        </div>
+        
+        <div class="result-container">
+          <h3>Verificação de Cache Local</h3>
+          <pre id="cacheResult">Verificando localStorage...</pre>
+          <button id="btnLimparCache" class="btn btn-warning">Limpar Cache e Cookies</button>
+        </div>
+        
+        <hr>
+        <a href="/" class="btn btn-default">Voltar para o Sistema</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Exibir conteúdo do localStorage
+      function mostrarCache() {
+        var cache = {};
+        for (var i = 0; i < localStorage.length; i++) {
+          var key = localStorage.key(i);
+          cache[key] = localStorage.getItem(key);
+        }
+        $('#cacheResult').text(JSON.stringify(cache, null, 2));
+      }
+      
+      mostrarCache();
+      
+      // Buscar via API normal
+      $('#btnBuscar').click(function() {
+        var mes = $('#mes').val();
+        var ano = $('#ano').val();
+        var tipo = $('#tipo').val();
+        var url = '/api/movimentacoes?mes=' + mes + '&ano=' + ano;
+        
+        if (tipo) {
+          url += '&tipo=' + tipo;
+        }
+        
+        $('#apiResult').text('Carregando dados da API...');
+        
+        $.ajax({
+          url: url,
+          method: 'GET',
+          success: function(data) {
+            $('#apiResult').text(JSON.stringify(data, null, 2));
+          },
+          error: function(xhr, status, error) {
+            $('#apiResult').text('Erro: ' + error + '\nStatus: ' + xhr.status + '\nResposta: ' + xhr.responseText);
+          }
+        });
+      });
+      
+      // Executar consulta SQL direta
+      $('#btnSql').click(function() {
+        var sql = $('#sqlQuery').val();
+        
+        $('#sqlResult').text('Executando consulta SQL...');
+        
+        $.ajax({
+          url: '/api/debug/sql',
+          method: 'POST',
+          data: { query: sql },
+          success: function(data) {
+            $('#sqlResult').text(JSON.stringify(data, null, 2));
+          },
+          error: function(xhr, status, error) {
+            $('#sqlResult').text('Erro: ' + error + '\nStatus: ' + xhr.status + '\nResposta: ' + xhr.responseText);
+          }
+        });
+      });
+      
+      // Limpar cache
+      $('#btnLimparCache').click(function() {
+        localStorage.clear();
+        var cookies = document.cookie.split(";");
+        
+        for (var i = 0; i < cookies.length; i++) {
+          var cookie = cookies[i];
+          var eqPos = cookie.indexOf("=");
+          var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+        }
+        
+        alert('Cache e cookies limpos!');
+        mostrarCache();
+      });
+    });
+  </script>
+</body>
+</html>

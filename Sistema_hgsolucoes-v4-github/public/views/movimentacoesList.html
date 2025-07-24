@@ -1,0 +1,243 @@
+<!-- Template de Listagem de Movimentações -->
+<div class="container-fluid">
+  <!-- Cabeçalho com filtros -->
+  <div class="row mb-4">
+    <div class="col-md-5">
+      <h2><i class="fas fa-exchange-alt mr-2"></i> Movimentações</h2>
+    </div>
+    <div class="col-md-7">
+      <div class="form-inline justify-content-end">
+        <!-- Filtro por mês -->
+        <div class="form-group mr-2">
+          <label for="filtroMes" class="mr-2">Mês:</label>
+          <select id="filtroMes" class="form-control" ng-model="vm.filtros.mes" 
+                  ng-options="mes.valor as mes.nome for mes in vm.meses">
+          </select>
+        </div>
+        
+        <!-- Filtro por ano -->
+        <div class="form-group mr-2">
+          <label for="filtroAno" class="mr-2">Ano:</label>
+          <select id="filtroAno" class="form-control" ng-model="vm.filtros.ano" 
+                  ng-options="ano for ano in vm.anos">
+          </select>
+        </div>
+        
+        <!-- Filtro por tipo -->
+        <div class="form-group mr-2">
+          <label for="filtroTipo" class="mr-2">Tipo:</label>
+          <select id="filtroTipo" class="form-control" ng-model="vm.filtros.tipo" 
+                  ng-options="tipo.valor as tipo.nome for tipo in vm.tipos">
+          </select>
+        </div>
+        
+        <!-- Filtro por categoria -->
+        <div class="form-group mr-2">
+          <label for="filtroCategoria" class="mr-2">Categoria:</label>
+          <select id="filtroCategoria" class="form-control" ng-model="vm.filtros.categoria_id" 
+                  ng-options="cat.id as cat.descricao for cat in vm.categoriasFiltro">
+          </select>
+        </div>
+
+        <!-- Filtro por período -->
+        <div class="form-group mr-2">
+          <label for="filtroPeriodo" class="mr-2">Período:</label>
+          <select id="filtroPeriodo" class="form-control" ng-model="vm.filtros.periodo">
+            <option value="">Todos</option>
+            <option value="diario">Diário</option>
+            <option value="semanal">Semanal</option>
+            <option value="mensal">Mensal</option>
+          </select>
+        </div>
+
+        <!-- Filtro por vencimento -->
+        <div class="form-check form-check-inline mr-2">
+          <input class="form-check-input" type="checkbox" id="filtroVencimento" ng-model="vm.filtros.por_vencimento">
+          <label class="form-check-label" for="filtroVencimento">Por vencimento</label>
+        </div>
+
+        <!-- Checkbox para incluir cancelados -->
+        <div class="form-check form-check-inline mr-2">
+          <input class="form-check-input" type="checkbox" id="filtroIncluirCancelados" ng-model="vm.filtros.incluir_cancelados">
+          <label class="form-check-label" for="filtroIncluirCancelados">Incluir cancelados</label>
+        </div>
+        
+        <!-- Botão para aplicar filtros -->
+        <button class="btn btn-primary" ng-click="vm.aplicarFiltros()">
+          <i class="fas fa-filter mr-1"></i> Filtrar
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Botão para adicionar nova movimentação -->
+  <div class="row mb-4">
+    <div class="col-md-12 text-right">
+      <button class="btn btn-success" ng-click="vm.novaMovimentacao()">
+        <i class="fas fa-plus mr-1"></i> Nova Movimentação
+      </button>
+    </div>
+  </div>
+  
+  <!-- Tabela de movimentações -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-striped mb-0">
+              <thead>
+                <tr>
+                  <th>Descrição</th>
+                  <th>Valor</th>
+                  <th>Tipo</th>
+                  <th>Categoria</th>
+                  <th>Data</th>
+                  <th>Vencimento</th>
+                  <th>Status</th>
+                  <th width="180">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="mov in vm.movimentacoes">
+                  <td>
+                    {{ mov.descricao }}
+                    <span ng-if="mov.tipo_frequencia === 'parcelada' && mov.parcela_atual" class="badge badge-info ml-2">
+                      Parcela {{ mov.parcela_atual }}/{{ mov.parcelas_total }}
+                    </span>
+                  </td>
+                  <td ng-class="{'valor-positivo': mov.tipo === 'receita', 'valor-negativo': mov.tipo === 'despesa'}">
+                    {{vm.formatarValor(mov.valor, mov.tipo)}}
+                  </td>
+                  <td>
+                    <span class="badge" ng-class="{'badge-success': mov.tipo === 'receita', 'badge-danger': mov.tipo === 'despesa'}">
+                      {{mov.tipo === 'receita' ? 'Receita' : 'Despesa'}}
+                    </span>
+                  </td>
+                  <td>{{mov.categoria.descricao}}</td>
+                  <td>{{mov.data | date:'dd/MM/yyyy'}}</td>
+                  <td>
+                    <span ng-if="mov.tipo !== 'receita' && mov.data_vencimento" ng-class="{'text-danger font-weight-bold': vm.estaVencida(mov)}">{{mov.data_vencimento | date:'dd/MM/yyyy'}}</span>
+                    <span ng-if="mov.tipo !== 'receita' && !mov.data_vencimento">-</span>
+                    <span ng-if="mov.tipo === 'receita'">-</span>
+                  </td>
+                  <td>
+                    <span ng-if="mov.tipo !== 'receita'" class="badge" ng-class="{
+                      'badge-success': mov.status_pagamento === 'pago', 
+                      'badge-warning': mov.status_pagamento === 'pendente', 
+                      'badge-info': mov.status_pagamento === 'a_pagar', 
+                      'badge-danger': mov.status_pagamento === 'vencido'
+                    }">
+                      {{vm.traduzirStatus(mov.status_pagamento)}}
+                    </span>
+                    <span ng-if="mov.tipo === 'receita'">-</span>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-success mr-1" ng-if="mov.tipo === 'despesa' && mov.status_pagamento !== 'pago'" 
+                            ng-click="vm.marcarComoPago(mov.id)" title="Marcar como pago">
+                      <i class="fas fa-check"></i>
+                    </button>
+                    <button class="btn btn-sm btn-info mr-1" ng-click="vm.editarMovimentacao(mov.id)">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" ng-click="vm.confirmarExclusao(mov.id, mov.descricao)">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr ng-if="vm.movimentacoes.length === 0">
+                  <td colspan="8" class="text-center py-3">
+                    <p class="text-muted mb-0">
+                      Nenhuma movimentação encontrada para os filtros selecionados
+                    </p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paginação -->
+  <div class="row mt-3" ng-if="vm.movimentacoes.length > 0">
+    <div class="col-md-6">
+      <div class="form-inline">
+        <label for="itensPorPagina" class="mr-2">Itens por página:</label>
+        <select id="itensPorPagina" class="form-control form-control-sm mr-3" 
+                ng-model="vm.paginacao.limite" 
+                ng-change="vm.alterarItensPorPagina()">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+        <span class="text-muted">
+          Exibindo {{ (vm.paginacao.pagina - 1) * vm.paginacao.limite + 1 }} - 
+          {{ vm.calcularUltimoItem() }} 
+          de {{ vm.paginacao.totalItens }} itens
+        </span>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <nav aria-label="Navegação de páginas">
+        <ul class="pagination justify-content-end">
+          <li class="page-item" ng-class="{disabled: vm.paginacao.pagina === 1}">
+            <a class="page-link" href="javascript:void(0)" ng-click="vm.irParaPrimeiraPagina()">
+              <i class="fas fa-angle-double-left"></i>
+            </a>
+          </li>
+          <li class="page-item" ng-class="{disabled: vm.paginacao.pagina === 1}">
+            <a class="page-link" href="javascript:void(0)" ng-click="vm.irParaPaginaAnterior()">
+              <i class="fas fa-angle-left"></i>
+            </a>
+          </li>
+          
+          <!-- Exibir número das páginas -->
+          <li class="page-item" ng-class="{active: vm.paginacao.pagina === n}" 
+              ng-repeat="n in [].constructor(vm.paginacao.totalPaginas) track by $index" 
+              ng-if="$index + 1 >= vm.paginacao.pagina - 2 && $index + 1 <= vm.paginacao.pagina + 2">
+            <a class="page-link" href="javascript:void(0)" ng-click="vm.irParaPagina($index + 1)">
+              {{ $index + 1 }}
+            </a>
+          </li>
+          
+          <li class="page-item" ng-class="{disabled: vm.paginacao.pagina === vm.paginacao.totalPaginas}">
+            <a class="page-link" href="javascript:void(0)" ng-click="vm.irParaProximaPagina()">
+              <i class="fas fa-angle-right"></i>
+            </a>
+          </li>
+          <li class="page-item" ng-class="{disabled: vm.paginacao.pagina === vm.paginacao.totalPaginas}">
+            <a class="page-link" href="javascript:void(0)" ng-click="vm.irParaUltimaPagina()">
+              <i class="fas fa-angle-double-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+  
+  <!-- Modal de Confirmação de Exclusão -->
+  <div class="modal fade" id="modalConfirmacao" tabindex="-1" role="dialog" aria-labelledby="modalConfirmacaoTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="modalConfirmacaoTitle">Confirmar Exclusão</h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Fechar">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Tem certeza que deseja excluir a movimentação <strong>{{vm.itemParaExcluir.descricao}}</strong>?</p>
+          <p class="mb-0 text-danger"><i class="fas fa-exclamation-triangle mr-2"></i> Esta ação não pode ser desfeita.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" ng-click="vm.confirmarRemocao()">Sim, Excluir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
